@@ -12,7 +12,7 @@ districts = gpd.read_file('./ny-c.geojson')
 districts = districts[['NAME', 'geometry']]
 
 ### Merge counties, selected districts
-SELETED_DISTRICTS = [{ 'type': 'C', 'number': '22' }]
+SELETED_DISTRICTS = [{ 'type': 'C', 'number': '22' }, { 'type': 'C', 'number': '24' }]
 for selected_district in SELETED_DISTRICTS:
   district = districts[districts.NAME == selected_district['number']]
   result = gpd.overlay(district, counties)
