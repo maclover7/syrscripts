@@ -21,6 +21,7 @@ for chamber in CHAMBERS:
 SELETED_DISTRICTS = [
   { 'chamber': 'C', 'number': '22' },
   { 'chamber': 'C', 'number': '24' },
+  { 'chamber': 'SS', 'number': '48' },
   { 'chamber': 'SS', 'number': '50' }
 ]
 
