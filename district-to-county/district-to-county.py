@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 
 ### Import counties
-counties = 'https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Civil_Boundaries/FeatureServer/2/query?where=1%3D1&outSR=4326&f=geojson'
+counties = 'https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Civil_Boundaries/FeatureServer/3/query?where=1%3D1&outSR=4326&f=geojson'
 counties = requests.get(counties)
 counties = counties.json()
 counties = gpd.GeoDataFrame.from_features(counties, crs='EPSG:4326')
