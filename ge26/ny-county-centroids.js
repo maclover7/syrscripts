@@ -6,12 +6,15 @@ return fetch('https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Civil_Boun
   .then(r => Promise.resolve(r.features))
   .then((features) => {
     return Promise.all(features.map((feature) => {
+      const centroid = turfCenter(turfFeature(feature.geometry)).geometry.coordinates;
+
       return Promise.resolve({
-        [`${feature.properties.NAME} County`]: turfCenter(turfFeature(feature.geometry)).geometry.coordinates
+        county: feature.properties.NAME,
+        lat: centroid[1],
+        lon: centroid[0]
       });
     }));
   })
   .then((features) => {
-    const featuresArr = Object.assign({}, ...features);
-    writeFile(`./ny-county-centroids.json`, JSON.stringify(featuresArr));
+    return writeFile(`./ny-county-centroids.json`, JSON.stringify(features));
   });
