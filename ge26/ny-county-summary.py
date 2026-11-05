@@ -1,28 +1,32 @@
+import json
 import pandas as pd
 
 ### Set race
-RACE_TO_PROCESS = 'gov'
+RACE_TO_PROCESS = 'comp'
 
 ### Import data
 centroidsdf = pd.read_json('ny-county-centroids.json')
-resultsdf = pd.read_json('ny-county-results-%s.json' % RACE_TO_PROCESS, orient='records').reset_index()
+
+resultspredf = []
+with open('ny-county-results-%s.json' % RACE_TO_PROCESS) as f:
+    counties = json.load(f)
+    for county in counties:
+        resultspredf.append([
+            county['countyName'],
+            county['candidates'][0]['votes'],
+            county['candidates'][0]['pct'],
+            county['candidates'][1]['votes'],
+            county['candidates'][1]['pct'],
+            county['candidates'][2]['votes'],
+            county['candidates'][2]['pct'],
+        ])
+
+resultsdf = pd.DataFrame(resultspredf, columns=['county', 'demvote', 'dempct', 'repvote', 'reppct', 'wivote', 'wipct'])
 
 ### Prepare county results, then match with centroids
 resultsdf = resultsdf.rename(columns={'countyName': 'county'})
 resultsdf['county'] = resultsdf.county.replace('St.Lawrence', 'St Lawrence')
 resultsdf = pd.merge(resultsdf, centroidsdf, on='county')
-
-### Properly format results
-resultsdf['demvote'] = resultsdf['candidates'][0][0]['votes']
-resultsdf['dempct'] = resultsdf['candidates'][0][0]['pct']
-
-resultsdf['repvote'] = resultsdf['candidates'][0][1]['votes']
-resultsdf['reppct'] = resultsdf['candidates'][0][1]['pct']
-
-resultsdf['wivote'] = resultsdf['candidates'][0][2]['pct']
-resultsdf['wipct'] = resultsdf['candidates'][0][2]['pct']
-
-resultsdf = resultsdf.drop('candidates', axis=1)
 
 ### Set winner attributes
 def calculate_winner_party(x):
@@ -62,5 +66,6 @@ regionresultsdf = resultsdf.groupby('region').agg({
 }).reset_index()
 regionresultsdf['dempct'] = 100 * regionresultsdf.demvote / regionresultsdf.sum(axis=1, numeric_only=True)
 regionresultsdf['reppct'] = 100 * regionresultsdf.repvote / regionresultsdf.sum(axis=1, numeric_only=True)
+regionresultsdf['wipct'] = 100 * regionresultsdf.wivote / regionresultsdf.sum(axis=1, numeric_only=True)
 
 print(regionresultsdf)
