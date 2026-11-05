@@ -11,7 +11,7 @@ VOTER_COLS = [
     'Voter History'
 ]
 
-votersdf = pd.read_csv('voters-102526.CSV')
+votersdf = pd.read_csv('voters-103026.CSV')
 votersdf = votersdf[VOTER_COLS]
 votersdf['voted_ge22'] = votersdf['Voter History'].str.contains('GE22')
 votersdf['voted_ge24'] = votersdf['Voter History'].str.contains('GE24')
@@ -24,8 +24,13 @@ ipevdf = ipevdf.rename(columns={'Registrant ID': 'State ID'})
 maildf = pd.read_csv('mail-110126.CSV')
 maildf = maildf[MAIL_COLS]
 
+ipevedaydf = pd.read_csv('earlyeday-110326-204pm.CSV')
+ipevedaydf = ipevedaydf[IPEV_COLS]
+ipevedaydf = ipevedaydf.rename(columns={'Registrant ID': 'State ID'})
+
 ipevdf = pd.merge(ipevdf, votersdf, on='State ID')
 maildf = pd.merge(maildf, votersdf, on='State ID')
+ipevedaydf = pd.merge(ipevedaydf, votersdf, on='State ID')
 
 print("Mail by return status:")
 mailstatusdf = maildf['Last Received Delivery Status'].value_counts().reset_index()
@@ -45,6 +50,11 @@ ipevpartydf = ipevdf.Party.value_counts().reset_index()
 ipevpartydf['pct'] = 100 * ipevpartydf['count'] / ipevpartydf['count'].sum()
 print(ipevpartydf.sort_values(by='pct'))
 
+print("Mail by party:")
+mailpartydf = maildf.Party.value_counts().reset_index()
+mailpartydf['pct'] = 100 * mailpartydf['count'] / mailpartydf['count'].sum()
+print(mailpartydf.sort_values(by='pct'))
+
 print("IPEV who voted, or didn't, in GE22 & GE24:")
 print(ipevdf.voted_ge22.value_counts())
 print(ipevdf.voted_ge24.value_counts())
@@ -53,3 +63,6 @@ print(len(ipevdf))
 
 print("Number of registered voters:")
 print(len(votersdf))
+
+print("IPEV/EDay who voted, or didn't, in GE22 & GE24:")
+print(ipevedaydf.groupby('Party')['voted_ge24'].agg(total_rows='count', true_count='sum'))
