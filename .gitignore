@@ -1,3 +1,5 @@
 ge26/*.CSV
 ge26/ny-county-results-*.json
+housing/*.json
+housing/*.zip
 node_modules
